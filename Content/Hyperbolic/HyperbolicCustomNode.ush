@@ -1,0 +1,39 @@
+// Reference HLSL for the UE Material "Custom" node.
+// Paste the body below into a Custom node (Output Type = CMOT_Float3) and
+// connect its output to the material's "World Position Offset".
+//
+// Custom node inputs (in order):
+//   WorldPos     Float3  <- "Absolute World Position" node
+//   M0..M3       Float4  <- "Collection Parameter" nodes reading MPC vector params
+//                           HLorentzRow0..HLorentzRow3
+//   BallRadius   Float   <- scalar constant (world-space radius of the Klein ball,
+//                           must match the geometry authored by AHyperbolicWorldActor)
+//
+// The geometry is authored in Beltrami-Klein coordinates; this converts each
+// vertex to the hyperboloid model, applies the world->player Lorentz transform,
+// then stereographically projects to the Poincare ball.
+
+// ---- paste from here ----
+float3 k = WorldPos / BallRadius;
+float kk = dot(k, k);
+if (kk >= 0.999f)
+{
+    return float3(0.0f, 0.0f, 0.0f);
+}
+
+// Klein -> hyperboloid sheet: (x,y,z) = k / s, t = 1 / s.
+float s = rsqrt(max(1.0f - kk, 1e-5f));
+float4 h = float4(k * s, s);
+
+// World -> player Lorentz transform (rows are HLorentzRow0..3).
+float4 hl;
+hl.x = dot(M0, h);
+hl.y = dot(M1, h);
+hl.z = dot(M2, h);
+hl.w = dot(M3, h);
+
+// Hyperboloid -> Poincare ball: p = (x,y,z) / (1 + t).
+float3 poincare = hl.xyz / (1.0f + hl.w);
+
+return poincare * BallRadius - WorldPos;
+// ---- paste until here ----

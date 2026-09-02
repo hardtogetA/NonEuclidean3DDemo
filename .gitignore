@@ -1,0 +1,26 @@
+# --- IDE ---
+.vs/
+.vscode/
+.idea/
+*.sln
+*.slnx
+.vsconfig
+
+# --- Visual Studio / build intermediates ---
+*.VC.db
+*.VC.opendb
+*.opensdf
+*.sdf
+*.suo
+*.ipch
+*.dbmdl
+
+# --- Unreal Engine generated files ---
+Binaries/
+DerivedDataCache/
+Intermediate/
+Saved/
+Build/
+
+# --- macOS ---
+.DS_Store
